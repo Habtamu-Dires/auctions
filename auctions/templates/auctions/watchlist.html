@@ -1,0 +1,42 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Watchlist</h2>
+
+    {% for watchlist in watchlists  %}
+        {% if watchlist.user.id == request.user.id %}
+            <div class="row">
+                <h2 class="col-12">
+                    <a href="{% url 'listing_page' watchlist.listing.id watchlist.listing.open_forbid %}">
+                        {{watchlist.listing.title}}
+                    </a>
+                </h2>
+                <div class="col-md-2">
+                    <img src={{watchlist.listing.image }} alt="image" height="100" width="100">
+                </div>
+                <div class="col-md-3">
+                    <ul>
+                        <li>Category: {{watchlist.listing.category.name}}</li>
+                        <li>Price: {{watchlist.listing.price}}</li>
+                        {% if watchlist.listing.open_forbid %}
+                            <li>Status: OPEN</li>
+                        {% else %}
+                            <li>Status: CLOSED</li>
+                        {% endif %}
+                        <li><a href="{% url 'remove_watchlist' watchlist.listing.id %}">
+                                Remove from watchlist
+                            </a>
+                        </li>
+                    </ul>
+                    <p>Created: <span style="color: gray;">
+                        {{watchlist.listing.date|date:"D d M Y"}} {{watchlist.listing.date|time:"H:i"}}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        
+        {% endif %}
+    {% empty %}
+        <div>No Listing</div>
+    {% endfor %}
+{% endblock %}

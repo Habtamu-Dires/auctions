@@ -1,0 +1,106 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="container">
+        <ul class="nav">
+            <li>
+                <h4>{{listing.title}} &nbsp; &nbsp;</h4>
+            </li>
+            {% if listing.open_forbid == False %}
+                    <li>
+                        <h5>CLOSED  &nbsp;</h5>
+                    </li>
+                    {% if max_bid.user.id == request.user.id %}
+                        <li>
+                            <h5>You are the Winner! </h5>
+                        </li>
+                    {% endif %}
+            {% endif %}
+            
+            {% if request.user.is_authenticated  %}
+                {% if listing.open_forbid == True %}
+                    <li>
+                        <a href="{% url 'addTo_watchlist' listing.id %}">Add To Watchlist</a>&nbsp; &nbsp;
+                    </li>
+                {%endif%}
+                {% if listing.owner.id == request.user.id and listing.open_forbid == True %}
+                    <li>
+                        <a href="{% url 'listing_page' listing.id False %}">Close</a>
+                    </li>
+                {% endif %}
+
+                {% if listing.owner.id == request.user.id and listing.open_forbid == False %}
+                    <li>
+                        <h6>The winner is {{max_bid.user.username}}</h6>
+                    </li>&nbsp; &nbsp;
+                    <li>
+                        <a href="{% url 'delete_listing' listing.id %}">Delete</a>
+                    </li>&nbsp; &nbsp;
+                    
+                {%endif%}
+
+    
+            {% endif %}
+                
+            
+        </ul>
+        {% if watchlist_message %}
+            <p style="color: yellow;">{{watchlist_message}}</p>
+        {% endif %}
+        <div>
+            <img src={{listing.image}} alt="image" height="200" width="50%">
+        </div>
+        <br>
+        <p>Created: <span style="color: gray;">{{listing.date|date:"D d M Y"}}</span></p>
+        <P>{{ listing.description }}</P>
+        <!--show bid-->
+        <h4><strong>{{max_bid.amount}}</strong></h4>
+        <!--the bid is closed-->
+        {% if listing.open_forbid == False %}
+            <h6>The bid is <strong>CLOSED</strong> with  {{bid_counter}} bid(s)</h6>
+        {% endif %}
+        <!--place bid-->
+        {% if request.user.is_authenticated and listing.open_forbid == True %}
+            <p>{{bid_counter}} bid(s) so far.The current bids, By {{max_bid.user.username}}</p>
+            <form action="{% url 'listing_page' listing.id listing.open_forbid %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input class="form-control" autofocus type="number" name="bid" placeholder="place bid">
+                </div>
+                {% if error_message %}
+                    <p style="color: red;">{{error_message}}</p>
+                {% endif %}
+                <input type="submit" value="Place Bid">
+            </form><br>
+
+        {% endif %}  
+        <h4><strong>Details:</strong></h4>
+            <ul>
+                <li>Listed by: {{listing.owner.username}}</li>
+                <li>Category: {{listing.category.name}}</li>
+            </ul>
+        <h4><strong>Comments:</strong></h4>
+        {% if request.user.is_authenticated and listing.open_forbid == True %}
+            <form action="{% url 'listing_page' listing.id listing.open_forbid %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input class="form-control" autofocus type="num" name="comment" placeholder="add comment">
+                </div>
+                <input type="submit" value="Add Comment">
+            </form><br>
+        {% endif %}
+        <!--read comments for this listing-->
+        {% for comment in comments %}
+            {% if comment.listing.id == listing.id %}
+                <div>
+                    <p><strong>By: {{comment.user.username}}</strong></p>
+                    <p>&nbsp &nbsp {{comment.comment}}</p>
+                </div>
+            {% endif %}
+        {% empty %}
+                <div></div>
+        {%endfor%}
+      
+    </div>
+  
+{% endblock %}

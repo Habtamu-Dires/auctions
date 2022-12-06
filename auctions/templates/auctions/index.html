@@ -1,0 +1,32 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Active Listings</h2>
+
+    {% for listing in listings  %}
+        <div class="row">
+            <h2 class="col-12"><a href="{% url 'listing_page' listing.id listing.open_forbid %}">{{listing.title}}</a></h2>
+            <div class="col-md-2">
+                <img src={{listing.image }} alt="image" height="150" width="150">
+            </div>
+            <div class="col-md-3">
+                <ul>
+                    <li>Category: {{listing.category.name}}</li>
+                    <li>Price: {{listing.price}}</li>
+                    {% if listing.open_forbid %}
+                        <li>Status: OPEN</li>
+                    {% else %}
+                        <li>Status: CLOSED</li>
+                    {% endif %}
+                </ul>
+                <p>Created: <span style="color: gray; font-style: italic;">
+                                {{listing.date|date:"D d M Y" }} {{listing.date|time:"H:i"}}         
+                            </span>
+                </p>
+            </div>
+        </div>
+        
+    {% empty %}
+        <div>No Listing</div>
+    {% endfor %}
+{% endblock %}
